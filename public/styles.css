@@ -1,0 +1,43 @@
+body {
+  font: sans-serif;
+  max-width: 100ch;
+  margin: 0 auto;
+
+  background-color: #36393f;
+  color: #eeeeee;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: #00aff4;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.guild {
+  display: inline-block;
+}
+
+.channel:before {
+  content: "#";
+}
+
+.channel {
+  color: lightblue;
+  display: inline-block;
+  padding: 0.5em;
+}
+
+.author {
+  display: inline-block;
+}
+
+.content {
+  margin: 1em;
+}
