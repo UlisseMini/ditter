@@ -8,6 +8,7 @@ import json
 
 app = FastAPI()
 
+# TODO: Convert to starlette (better websocket handling)
 
 # tasks to send new messages to
 msg_subscriptions: List[asyncio.Queue] = []
@@ -47,6 +48,8 @@ async def startup():
 
 @app.on_event('shutdown')
 async def shutdown():
+    if tail_proc.returncode is None:
+        tail_proc.terminate()
     await tail_proc.wait()
 
 
@@ -60,8 +63,8 @@ async def subscribe(websocket: WebSocket):
         while True:
             item = await queue.get()
             await websocket.send_text(json.dumps(item))
-    except (WebSocketDisconnect, ConnectionClosedError):
-        pass
+    except (WebSocketDisconnect, ConnectionClosedError) as e:
+        print(e)
     finally:
         msg_subscriptions.remove(queue)
         print(f'removed subscriber, currently {len(msg_subscriptions)} subscribers')

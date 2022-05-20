@@ -36,7 +36,12 @@ function h(tag, attrs, children) {
 
 function checkbox(name, onchange) {
   return h("div", {}, [
-    h("input", { type: "checkbox", id: `checkbox-${name}`, onchange }),
+    h("input", {
+      type: "checkbox",
+      id: `checkbox-${name}`,
+      checked: "",
+      onchange,
+    }),
     h("label", { for: `checkbox-${name}` }, [name]),
   ]);
 }
@@ -51,6 +56,18 @@ function attachmentEl(url) {
 
 const hiddenGuild = {};
 
+function cssColor(color) {
+  // default for "no color" is black for some reason, should be white (on dark theme that is)
+  return "color: " + (color === "#000000" ? "#eeeeee" : color);
+}
+
+const avatar = (link) => {
+  // TODO: handle no link
+  // link = link || ""
+  // TODO: do this properly
+  return link.replace(/\?size=\d+/, "") + "?size=80";
+};
+
 function messageEl(m, invites) {
   const channelHref = `https://discord.com/channels/${m.guild_id}/${m.channel_id}`;
   const messageHref = `${channelHref}/${m.id}`;
@@ -59,7 +76,12 @@ function messageEl(m, invites) {
   return h("div", { class: `message g-${m.guild}`, style: style }, [
     h("a", { class: "guild", href: invites[m.guild] }, [m.guild]),
     h("a", { class: "channel", href: messageHref }, [m.channel]),
-    h("div", { class: "author" }, [m.author]),
+    h("div", { class: "author" }, [
+      h("img", { class: "avatar", src: avatar(m.author.avatar) }),
+      h("div", { class: "name", style: cssColor(m.author.color) }, [
+        m.author.name,
+      ]),
+    ]),
     h("div", { class: "content", _html: md.render(m.content) }),
     ...images,
   ]);
@@ -82,7 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // append feed hiding form to body
   const feedForm = h("form", {}, [
     ...Object.keys(invites).map((guild) =>
-      checkbox(guild, (e) => setHidden(guild, e.target.checked))
+      checkbox(guild, (e) => setHidden(guild, !e.target.checked))
     ),
   ]);
   document.body.appendChild(feedForm);

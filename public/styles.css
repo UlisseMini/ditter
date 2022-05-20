@@ -34,10 +34,19 @@ a:hover {
   padding: 0.5em;
 }
 
-.author {
-  display: inline-block;
-}
-
 .content {
   margin: 1em;
+}
+
+/* author */
+
+.author {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  border-radius: 9999px;
+  max-width: 2em;
+  margin: 0.5em;
 }
