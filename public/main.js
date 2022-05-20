@@ -78,6 +78,14 @@ const embedMd = (embed) => {
 
 const embedsMd = (embeds) => (embeds || []).map(embedMd).join("\n\n");
 
+const emojify = (content) =>
+  // <:Hmmmm:928586668787785728> -> ![Hmmmm](https://cdn.discordapp.com/emojis/928586668787785728.webp?size=44&quality=lossless)
+  // TODO: Handle animated emoji
+  content.replace(
+    /<:(\w+):(\d+)>/,
+    "![$1](https://cdn.discordapp.com/emojis/$2.webp?size=44&quality=lossless)"
+  );
+
 function messageEl(m, invites) {
   const channelHref = `https://discord.com/channels/${m.guild_id}/${m.channel_id}`;
   const messageHref = `${channelHref}/${m.id}`;
@@ -94,7 +102,10 @@ function messageEl(m, invites) {
       ]),
     ]),
     h("div", { class: "content" }, [
-      h("div", { class: "messageContent", _html: md.render(m.content) }),
+      h("div", {
+        class: "messageContent",
+        _html: md.render(emojify(m.content)),
+      }),
       h("div", {
         class: "embedContent",
         // currently we only show embed content from bots
