@@ -31,6 +31,13 @@ def serialize_message(message: discord.Message) -> dict:
         'guild_id': s(message.guild.id),
         'channel_id': s(message.channel.id),
 
+        # embeds are used by bots, or social media posts
+        'embeds': [{
+            'title': embed.title,
+            'description': embed.description,
+            'url': embed.url,
+        } for embed in message.embeds ],
+
         # author
         'author': {
             'name': author.name,
@@ -44,12 +51,6 @@ def serialize_message(message: discord.Message) -> dict:
             # idk what this is, not being used yet
             # 'accent_color': s(author.accent_color) if author.accent_color else None,
             'avatar': s(author.avatar),
-            # embeds are used by bots, like the math discord bot
-            'embeds': [{
-                'title': embed.title,
-                'description': embed.description,
-                'url': embed.url,
-            } for embed in message.embeds ],
             # TODO: Figure out why this isn't working (always returns offline, wrong intents?)
             'status': s(author.status), # dnd, online, etc
             # TODO: Get this working? has been null for every message so far
