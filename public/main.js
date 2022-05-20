@@ -63,16 +63,27 @@ function cssColor(color) {
 
 const avatar = (link) => {
   // TODO: handle no link
-  // link = link || ""
+  link = link || "";
   // TODO: do this properly
   return link.replace(/\?size=\d+/, "") + "?size=80";
 };
+
+// embed to markdown
+const embedMd = (embed) => {
+  let md = "";
+  if (embed.title) md += `**${embed.title}**\n`;
+  if (embed.description) md += embed.description;
+  return md;
+};
+
+const embedsMd = (embeds) => (embeds || []).map(embedMd).join("\n\n");
 
 function messageEl(m, invites) {
   const channelHref = `https://discord.com/channels/${m.guild_id}/${m.channel_id}`;
   const messageHref = `${channelHref}/${m.id}`;
   const images = m.attachments.map((url) => attachmentEl(url));
   const style = `display: ` + (hiddenGuild[m.guild] ? "none" : "");
+
   return h("div", { class: `message g-${m.guild}`, style: style }, [
     h("a", { class: "guild", href: invites[m.guild] }, [m.guild]),
     h("a", { class: "channel", href: messageHref }, [m.channel]),
@@ -82,7 +93,14 @@ function messageEl(m, invites) {
         m.author.name,
       ]),
     ]),
-    h("div", { class: "content", _html: md.render(m.content) }),
+    h("div", { class: "content" }, [
+      h("div", { class: "messageContent", _html: md.render(m.content) }),
+      h("div", {
+        class: "embedContent",
+        // currently we only show embed content from bots
+        _html: md.render(embedsMd(m.author.bot ? m.embeds : [])),
+      }),
+    ]),
     ...images,
   ]);
 }
