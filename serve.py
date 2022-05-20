@@ -47,7 +47,6 @@ async def startup():
 
 @app.on_event('shutdown')
 async def shutdown():
-    tail_proc.terminate()
     await tail_proc.wait()
 
 
