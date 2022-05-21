@@ -135,7 +135,16 @@ const setHidden = (guildName, hidden) => {
   });
 };
 
+function websocket(relativePath) {
+  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+  const ws = new WebSocket(protocol + window.location.host + relativePath);
+  return ws;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+  const connectionStatus = document.getElementById("connection-status");
+  connectionStatus.textContent = "Connecting...";
+
   // get invites, i.e. invites[guild] = "<invite link to guild>"
   const invites = await (await fetch("/invites")).json();
 
@@ -156,13 +165,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.body.appendChild(messagesEl);
 
   // connect to websocket
-  const ws = new WebSocket(
-    (window.location.protocol === "https:" ? "wss://" : "ws://") +
-      window.location.host +
-      "/subscribe"
-  );
-  ws.onopen = () => console.log("connected to /subscribe");
-  ws.onclose = () => console.log("disconnected from /subscribe"); // TODO: retry
+  const ws = websocket("/subscribe");
+  ws.onopen = () => {
+    connectionStatus.textContent = `Connected`;
+    console.log(`connected to ${relativePath}`);
+  };
+  ws.onclose = () => {
+    connectionStatus.textContent = `Disconnected, refresh?`;
+    console.log(`disconnected from ${relativePath}`);
+  };
+  ws.onerror = (e) => console.error(e);
   ws.onmessage = (e) => {
     const m = JSON.parse(e.data);
     messagesEl.prepend(messageEl(m, invites));
