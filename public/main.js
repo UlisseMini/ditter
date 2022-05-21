@@ -54,8 +54,6 @@ function attachmentEl(url) {
   }
 }
 
-const hiddenGuild = {};
-
 function cssColor(color) {
   // default for "no color" is black for some reason, should be white (on dark theme that is)
   return "color: " + (color === "#000000" ? "#eeeeee" : color);
@@ -99,9 +97,8 @@ function messageEl(m, invites) {
   const channelHref = `https://discord.com/channels/${m.guild_id}/${m.channel_id}`;
   const messageHref = `${channelHref}/${m.id}`;
   const images = m.attachments.map((url) => attachmentEl(url));
-  const style = `display: ` + (hiddenGuild[m.guild] ? "none" : "");
 
-  return h("div", { class: `message g-${m.guild}`, style: style }, [
+  return h("div", { class: `message g-${m.guild}` }, [
     h("a", { class: "guild", href: invites[m.guild] }, [m.guild]),
     h("a", { class: "channel", href: messageHref }, [m.channel]),
     h("div", { class: "author" }, [
@@ -128,11 +125,34 @@ function messageEl(m, invites) {
 const get = (k) => JSON.parse(localStorage.getItem(k));
 const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
-const setHidden = (guildName, hidden) => {
-  hiddenGuild[guildName] = hidden;
-  document.querySelectorAll(`.g-${guildName}`).forEach((el) => {
-    el.style.display = hidden ? "none" : "";
-  });
+const getStyleSheet = (title) => {
+  for (let i = 0; i < document.styleSheets.length; i++) {
+    const sheet = document.styleSheets[i];
+    if (sheet.title === title) {
+      return sheet;
+    }
+  }
+};
+
+// Delete the first css rule with selector 'selector'
+const deleteBySelector = (sheet, selector) => {
+  for (let i = 0; i < sheet.cssRules.length; i++) {
+    const rule = sheet.cssRules[i];
+    if (rule.selectorText === selector) {
+      sheet.deleteRule(i);
+      break;
+    }
+  }
+};
+
+const setHidden = (className, hidden) => {
+  const sheet = getStyleSheet("dynamic");
+  const selector = "." + className;
+  if (hidden) {
+    sheet.insertRule(`${selector} { display: none; }`);
+  } else {
+    deleteBySelector(sheet, selector);
+  }
 };
 
 function websocket(relativePath) {
@@ -151,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // append feed hiding form to body
   const feedForm = h("form", {}, [
     ...Object.keys(invites).map((guild) =>
-      checkbox(guild, (e) => setHidden(guild, !e.target.checked))
+      checkbox(guild, (e) => setHidden(`g-${guild}`, !e.target.checked))
     ),
   ]);
   document.body.appendChild(feedForm);
@@ -168,18 +188,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const ws = websocket("/subscribe");
   ws.onopen = () => {
     connectionStatus.textContent = `Connected`;
-    console.log(`connected to ${relativePath}`);
+    console.log(`connected to /subscribe`);
   };
   ws.onclose = () => {
     connectionStatus.textContent = `Disconnected, refresh?`;
-    console.log(`disconnected from ${relativePath}`);
+    console.log(`disconnected from /subscribe`);
   };
   ws.onerror = (e) => console.error(e);
   ws.onmessage = (e) => {
     const m = JSON.parse(e.data);
     messagesEl.prepend(messageEl(m, invites));
     messages.push(m);
-    if (messages.length > 100) {
+    if (messages.length > 1000) {
       messages = messages.slice(1);
     }
     set("messages", messages);
