@@ -86,6 +86,15 @@ const emojify = (content) =>
     "![$1](https://cdn.discordapp.com/emojis/$2.webp?size=44&quality=lossless)"
   );
 
+// for dev, I get distracted reading messages, this is for focus.
+const rot13 = (s) =>
+  // why write code when SO exists? https://stackoverflow.com/a/28049798 :)
+  s.replace(/[a-zA-Z]/g, function (c) {
+    return String.fromCharCode(
+      (c <= "Z" ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26
+    );
+  });
+
 function messageEl(m, invites) {
   const channelHref = `https://discord.com/channels/${m.guild_id}/${m.channel_id}`;
   const messageHref = `${channelHref}/${m.id}`;
@@ -104,7 +113,7 @@ function messageEl(m, invites) {
     h("div", { class: "content" }, [
       h("div", {
         class: "messageContent",
-        _html: md.render(emojify(m.content)),
+        _html: md.render(emojify(rot13(m.content))),
       }),
       h("div", {
         class: "embedContent",
