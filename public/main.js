@@ -1,4 +1,4 @@
-// Must be loaded after markdownit and highlight.js
+// This file must be loaded after markdownit and highlight.js
 
 const md = window.markdownit({
   html: false, // security!
@@ -79,12 +79,12 @@ const embedsMd = (embeds) => (embeds || []).map(embedMd).join("\n\n");
 const emojify = (content) =>
   // <:Hmmmm:928586668787785728> -> ![Hmmmm](https://cdn.discordapp.com/emojis/928586668787785728.webp?size=44&quality=lossless)
   // TODO: Handle animated emoji
+  // TODO: Make emoji display inline block (img is block by default rn)
   content.replace(
     /<:(\w+):(\d+)>/,
     "![$1](https://cdn.discordapp.com/emojis/$2.webp?size=44&quality=lossless)"
   );
 
-// for dev, I get distracted reading messages, this is for focus.
 const rot13 = (s) =>
   // why write code when SO exists? https://stackoverflow.com/a/28049798 :)
   s.replace(/[a-zA-Z]/g, function (c) {
@@ -92,6 +92,17 @@ const rot13 = (s) =>
       (c <= "Z" ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26
     );
   });
+
+// preprocess markdown
+// TODO: Put this into `md.render` somehow via a plugin
+const preprocess = (s) => {
+  if (document.location.hostname === "localhost") {
+    // so I don't get distracted while developing, lol
+    s = rot13(s);
+  }
+
+  return emojify(s);
+};
 
 // TODO: Don't hardcode Today here
 const humanTime = (d) => (d ? `Today at ${d.toLocaleTimeString()}` : "");
@@ -119,12 +130,12 @@ function messageEl(m, invites) {
     h("div", { class: "content" }, [
       h("div", {
         class: "messageContent",
-        _html: md.render(emojify(rot13(m.content))),
+        _html: md.render(preprocess(m.content)),
       }),
       h("div", {
         class: "embedContent",
         // currently we only show embed content from bots
-        _html: md.render(embedsMd(m.author.bot ? m.embeds : [])),
+        _html: md.render(preprocess(embedsMd(m.author.bot ? m.embeds : []))),
       }),
     ]),
     ...images,
