@@ -39,9 +39,9 @@ a:hover {
   margin: 1em;
 }
 
-/* author */
+/* message header (author, avatar, etc) */
 
-.author {
+.message-header {
   display: flex;
   align-items: center;
 }
@@ -49,5 +49,11 @@ a:hover {
 .avatar {
   border-radius: 9999px;
   max-width: 2em;
+  margin: 0.5em;
+}
+
+time {
+  color: #9ea2a6;
+  font-size: small;
   margin: 0.5em;
 }

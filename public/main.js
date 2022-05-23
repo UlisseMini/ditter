@@ -93,18 +93,27 @@ const rot13 = (s) =>
     );
   });
 
+// TODO: Don't hardcode Today here
+const humanTime = (d) => (d ? `Today at ${d.toLocaleTimeString()}` : "");
+
+const fullTime = (d) => (d ? `${d.toLocaleString()}` : "");
+
 function messageEl(m, invites) {
   const channelHref = `https://discord.com/channels/${m.guild_id}/${m.channel_id}`;
   const messageHref = `${channelHref}/${m.id}`;
   const images = m.attachments.map((url) => attachmentEl(url));
+  const created_at = new Date(m.created_at);
 
   return h("div", { class: `message g-${m.guild}` }, [
     h("a", { class: "guild", href: invites[m.guild] }, [m.guild]),
     h("a", { class: "channel", href: messageHref }, [m.channel]),
-    h("div", { class: "author" }, [
+    h("div", { class: "message-header" }, [
       h("img", { class: "avatar", src: avatar(m.author.avatar) }),
       h("div", { class: "name", style: cssColor(m.author.color) }, [
         m.author.name,
+      ]),
+      h("time", { datetime: m.created_at, title: fullTime(created_at) }, [
+        humanTime(created_at),
       ]),
     ]),
     h("div", { class: "content" }, [
