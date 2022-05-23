@@ -19,7 +19,7 @@ invites = {
   'PenSquid': 'https://discord.gg/A2uE8rksqy',
 }
 
-RECENTS_SIZE = 1000
+RECENTS_SIZE = 100
 recents = []
 
 tail_proc: asyncio.subprocess.Process
