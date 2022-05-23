@@ -122,9 +122,6 @@ function messageEl(m, invites) {
   ]);
 }
 
-const get = (k) => JSON.parse(localStorage.getItem(k));
-const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
-
 const getStyleSheet = (title) => {
   for (let i = 0; i < document.styleSheets.length; i++) {
     const sheet = document.styleSheets[i];
@@ -176,9 +173,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   ]);
   document.body.appendChild(feedForm);
 
-  // create messagesEl and append cached messages
+  // create messagesEl and append recent messages
   const messagesEl = h("div", { class: "messages" });
-  let messages = get("messages") || [];
+  let messages = await (await fetch("/recents")).json();
   messages.forEach((m) => {
     messagesEl.prepend(messageEl(m, invites));
   });
@@ -202,6 +199,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (messages.length > 1000) {
       messages = messages.slice(1);
     }
-    set("messages", messages);
   };
 });

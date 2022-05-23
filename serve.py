@@ -19,14 +19,20 @@ invites = {
   'PenSquid': 'https://discord.gg/A2uE8rksqy',
 }
 
+RECENTS_SIZE = 1000
+recents = []
 
 tail_proc: asyncio.subprocess.Process
 
 
 async def read_tail():
+    global recents
     assert tail_proc.stdout
     async for line in tail_proc.stdout:
         d = json.loads(line)
+        recents.append(d)
+        if len(recents) > RECENTS_SIZE:
+            recents = recents[1:RECENTS_SIZE]
         for subscriber in msg_subscriptions:
             try:
                 subscriber.put_nowait(d)
@@ -40,7 +46,7 @@ async def read_tail():
 async def startup():
     global tail_proc
     tail_proc = await asyncio.subprocess.create_subprocess_shell(
-        'tail -f ./messages.json',
+        'tail -n1000 -f ./messages.json',
         stdout=asyncio.subprocess.PIPE,
     )
     asyncio.create_task(read_tail())
@@ -73,6 +79,10 @@ async def subscribe(websocket: WebSocket):
 @app.get('/invites')
 async def get_invites():
     return invites
+
+@app.get('/recents')
+async def get_recents():
+    return recents
 
 app.mount('/', StaticFiles(directory='public', html=True), '')
 
