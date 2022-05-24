@@ -46,14 +46,17 @@ a:hover {
   align-items: center;
 }
 
+.name {
+  margin: 0 0.5rem;
+}
+
 .avatar {
   border-radius: 9999px;
-  max-width: 2em;
-  margin: 0.5em;
+  width: 40px;
+  height: 40px;
 }
 
 time {
   color: #9ea2a6;
   font-size: small;
-  margin: 0.5em;
 }
