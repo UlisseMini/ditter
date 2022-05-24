@@ -51,6 +51,8 @@ def serialize_message(message: discord.Message) -> dict:
             # idk what this is, not being used yet
             # 'accent_color': s(author.accent_color) if author.accent_color else None,
             'avatar': s(author.avatar),
+            'default_avatar': s(author.default_avatar),
+            'guild_avatar': s(author.guild_avatar),
             # TODO: Figure out why this isn't working (always returns offline, wrong intents?)
             'status': s(author.status), # dnd, online, etc
             # TODO: Get this working? has been null for every message so far

@@ -59,10 +59,10 @@ function cssColor(color) {
   return "color: " + (color === "#000000" ? "#eeeeee" : color);
 }
 
-const avatar = (link) => {
-  // TODO: handle no link
-  link = link || "";
-  // TODO: do this properly
+const avatar = (author) => {
+  const link =
+    author.guild_avatar || author.avatar || author.default_avatar || "null";
+  // TODO: inline image, right size
   return link.replace(/\?size=\d+/, "") + "?size=80";
 };
 
@@ -119,7 +119,7 @@ function messageEl(m, invites) {
     h("a", { class: "guild", href: invites[m.guild] }, [m.guild]),
     h("a", { class: "channel", href: messageHref }, [m.channel]),
     h("div", { class: "message-header" }, [
-      h("img", { class: "avatar", src: avatar(m.author.avatar) }),
+      h("img", { class: "avatar", src: avatar(m.author) }),
       h("div", { class: "name", style: cssColor(m.author.color) }, [
         m.author.name,
       ]),
